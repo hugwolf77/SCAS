@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "scas"
+version = "0.1.0"
+description = "Smart Convergence Academic Society"
+authors = ["Augustine77 <hugwolf77@gmail.com>"]
+license = "GNU"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.3"
+numpy = "1.26"
+pandas = "^2.2.2"
+statsmodels = "^0.14.2"
+matplotlib = "^3.9.1"
+seaborn = "^0.13.2"
+openpyxl = "^3.1.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
