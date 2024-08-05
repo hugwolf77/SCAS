@@ -56,11 +56,18 @@ class stationary:
         self._test_result = pd.DataFrame()
 
     def testStatationary(self, transformed):
-        if (result := adfuller(transformed.values))[1] < 0.05 :
-            test_result = "{}".format("S")
-        else:
-            test_result = "{}".format("N")
-        return test_result
+        try:
+            if (result := adfuller(transformed.values))[1] < 0.05 :
+                test_result = "{}".format("S")
+            else:
+                test_result = "{}".format("N")
+            return test_result
+        except ZeroDivisionError as e:
+            print(f"{transformed.name} : ZeroDivisionError  : {e}")
+        except IndexError as e:
+            print(f"{transformed.name} : IndexError  : {e}")
+        except :
+            print(f"{transformed.name} : Error ")
 
     def diffCheck(self):
         i = 0
