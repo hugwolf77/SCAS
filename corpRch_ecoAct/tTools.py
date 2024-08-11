@@ -46,8 +46,8 @@ class stationary:
     def __init__(self, mainFile, start=None, end=None):
         self.mainFile = mainFile
         self.path = os.path.join(os.getcwd()+"/data",mainFile)
-        self.df = pd.read_excel(self.path,sheet_name='variable',header=0)
-        self.varInfo = pd.read_excel(self.path,sheet_name='varInfo',header=0)
+        self.df = pd.read_excel(self.path,sheet_name='variable',header=0, index_col='date')
+        self.varInfo = pd.read_excel(self.path,sheet_name='varInfo',header=0, index_col='순서')
         self.varList = self.varInfo['변수명']
         self.savePath = self.path
         self.setDiff = ['Origin','Diff-1','Log-1','Diff-2']
@@ -79,30 +79,65 @@ class stationary:
                 # test
                 if t == 'Origin':
                     transformed = self.df[var].dropna()
-                    res = self.testStatationary(transformed)
                 elif t == 'Diff-1':
                     transformed = self.df[var].diff().dropna()
-                    res = self.testStatationary(transformed)
                 elif t == 'Log-1':
                     log_1 = self.df[var]
                     transformed = np.log(log_1).dropna()
-                    res = self.testStatationary(transformed)
                 elif t == 'Diff-2':
                     transformed = self.df[var].diff().diff().dropna()
-                    res = self.testStatationary(transformed)
                 else:
                     pass
-
+                res = self.testStatationary(transformed)
                 g = self.varInfo['분류구릅'][self.varInfo['변수명']==var].values
                 # print(type(g[0]))
                 # raise
                 _result = [g[0],var,t,res]
                 list_test_result.append(_result)
-        
         self._test_result = pd.DataFrame(list_test_result,columns = ['group','variable','transform','adf'] )
         self._test_result = self._test_result.pivot(index= ['group','variable'], columns='transform', values='adf')
+
+
         with pd.ExcelWriter(self.savePath) as writer:
-            self.varInfo.to_excel(writer, sheet_name='varInfo')
-            self.df.to_excel(writer, sheet_name='variable')
-            self._test_result.to_excel(writer, sheet_name='diffCheck')
+            self.varInfo.to_excel(writer, sheet_name='varInfo', index=True)
+            self.df.to_excel(writer, sheet_name='variable', index=True)
+            self._test_result.to_excel(writer, sheet_name='diffCheck', index=True)
         # self._test_result.to_excel(self.savePath, sheet_name='diffCheck')
+
+    def trans_data(self):
+        transformed_result = []
+
+        if not self._test_result.values:
+            assert ("정상성 테스트를 진행하였는지 확인해야 합니다.")
+
+        for var in self.varList:
+            t  = self.varInfo['Diff'][self.varInfo['변수명']==var].values
+            print(f"processing..... [ {var} ------Diff : {t} --trans--- ]")
+            # raise
+            # test
+            if t == 'Origin':
+                transformed = self.df[var].dropna()
+            elif t == 'Diff-1':
+                transformed = self.df[var].diff().dropna()
+            elif t == 'Log-1':
+                log_1 = self.df[var]
+                transformed = np.log(log_1).dropna()
+            elif t == 'Diff-2':
+                transformed = self.df[var].diff().diff().dropna()
+            else:
+                transformed = self.df[var].dropna()
+
+            transformed_result.append(transformed)
+        diff_variable = pd.DataFrame(transformed_result).T #, index=self.df.index)
+        # print(diff_variable.index)
+        self.varInfo = pd.read_excel(self.path,sheet_name='varInfo',header=0, index_col='순서')
+        self.df = pd.read_excel(self.path,sheet_name='variable',header=0, index_col='date')
+        self._test_result = pd.read_excel(self.path,sheet_name='diffCheck', header=0)
+
+        with pd.ExcelWriter(self.savePath) as writer:
+            self.varInfo.to_excel(writer, sheet_name='varInfo', index=True)
+            self.df.to_excel(writer, sheet_name='variable', index=True)
+            self._test_result.to_excel(writer, sheet_name='diffCheck', index=True)
+            diff_variable.to_excel(writer, sheet_name='transData', index=True)
+
+

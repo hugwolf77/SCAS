@@ -7,7 +7,7 @@ class dataloader:
     def __init__(self, mainFile):
         self.mainFile = mainFile
         self.data_src_dir = os.path.join(os.getcwd(),'data/')
-        self.dataInfo = pd.read_excel(self.data_src_dir+self.mainFile,sheet_name='varInfo',header=0)
+        self.dataInfo = pd.read_excel(self.data_src_dir+self.mainFile,sheet_name='varInfo',header=0, index_col='순서')
         self.dataFiles = list(set(self.dataInfo['fileName']))
         self.varList = self.dataInfo['변수명']
         self.data = pd.DataFrame()
@@ -35,6 +35,6 @@ class dataloader:
         self.data.columns = self.varList.values
         self.data.sort_index(inplace=True, ascending=True)
         with pd.ExcelWriter(self.savePath+self.mainFile) as writer:
-            self.dataInfo.to_excel(writer, sheet_name='varInfo')
-            self.data.to_excel(writer, sheet_name='variable')
+            self.dataInfo.to_excel(writer, sheet_name='varInfo', index=True)
+            self.data.to_excel(writer, sheet_name='variable', index=True)
         return self.data
