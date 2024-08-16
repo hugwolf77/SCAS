@@ -21,18 +21,10 @@ class dataloader:
             loadVar.append(pd.read_excel(self.data_src_dir+indir+"/"+file, index_col='date'))
         loadVar = pd.concat(loadVar,axis=1)
 
-        for group in self.dataInfo['분류구릅'].unique():
-            print(f"Data variable category group processing: {group}")
-            if self.dataInfo['분류구릅'][self.dataInfo['fileName']==file].iloc[0] == group:
-                self.data = pd.concat([self.data, loadVar[['연구소수','연구원수(연)','석박비율(연)','전담부서수','연구원수(전)','석박비율(전)']]], axis=1)
-            if (self.dataInfo['분류구릅'][self.dataInfo['fileName']==file].iloc[0] == group) and (self.dataInfo['데이터 소속'][self.dataInfo['fileName']==file].iloc[0] == '경제 활동 역동성' or '경제 활동 인구구조'):
-                self.data = pd.concat([self.data, loadVar[['경제활동인구','취업자','비임금근로자','고용원이 있는 자영업자','고용원이 없는 자영업자',
-                                    '무급가족종사자','임금근로자','상용근로자','임시근로자','일용근로자','남자','여자',
-                                    '실업자','실업률','15세이상인구','비경제활동인구','경제활동참가율','고용률',]]], axis=1)
-            else:
-                pass
-        
-        self.data.columns = self.varList.values
+        # 가장 간단한 것은 varInfo 의 정보를 전적으로 신뢰하고, 변수 목록을 그대로 적용하는것. (파일간 컬럼명(변수명)이 항상 일치한다는 전제 신뢰)
+        # 추후 UI interface 에서 select된 columns를 답아서 선택되도록 변경
+        selectCol=list(self.varList.values.flatten())
+        self.data = loadVar[selectCol]
         self.data.sort_index(inplace=True, ascending=True)
         with pd.ExcelWriter(self.savePath+self.mainFile) as writer:
             self.dataInfo.to_excel(writer, sheet_name='varInfo', index=True)

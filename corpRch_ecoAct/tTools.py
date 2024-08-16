@@ -107,9 +107,6 @@ class stationary:
     def trans_data(self):
         transformed_result = []
 
-        if not self._test_result.values:
-            assert ("정상성 테스트를 진행하였는지 확인해야 합니다.")
-
         for var in self.varList:
             t  = self.varInfo['Diff'][self.varInfo['변수명']==var].values
             print(f"processing..... [ {var} ------Diff : {t} --trans--- ]")

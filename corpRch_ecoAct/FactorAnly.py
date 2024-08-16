@@ -34,14 +34,23 @@ std = df.std()
 scaled = (df - mean)/std 
 
 # plot
-df_std = scaled.melt(var_name='Column', value_name='Normalized')
-plt.figure(figsize=(12, 6))
-ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
-_ = ax.set_xticklabels(df.keys(), rotation=90)
-plt.show()
+# df_std = scaled.melt(var_name='Column', value_name='Normalized')
+# plt.figure(figsize=(12, 6))
+# ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
+# _ = ax.set_xticklabels(df.keys(), rotation=90)
+# plt.show()
 
 # norm dist test
-chi_square_value,p_value=calculate_bartlett_sphericity(scaled)
+
+data = scaled.drop('실업률', axis=1)
+data = data.iloc[2:,:]
+
+chi_square_value,p_value=calculate_bartlett_sphericity(data)
 print(f"chi_square_value : {chi_square_value}")
 print(f"p_value() :{p_value}")
 
+
+# init fa
+fa = FactorAnalyzer(n_factors=23, method='ml', rotation=None)
+fa.fit(data)
+print(fa.loadings_)
