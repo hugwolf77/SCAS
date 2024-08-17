@@ -137,4 +137,7 @@ class stationary:
             self._test_result.to_excel(writer, sheet_name='diffCheck', index=True)
             diff_variable.to_excel(writer, sheet_name='transData', index=True)
 
+if __name__ == "__main__":
+    pass
+
 
