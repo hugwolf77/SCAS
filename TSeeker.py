@@ -1,10 +1,13 @@
-# from GUI.mForm import appRun
-from GUI.rawData import RunETL
+from app.mForm import appRun
+from app.rawData import RunETL
 from DB.dataloader import dataloader
+from app.faForm import seekerEFA, RunEFA
+
 
 
 
 
 if __name__ == "__main__":
-    RunETL()
     # appRun()
+    # RunETL()
+    RunEFA()

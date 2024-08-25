@@ -40,14 +40,28 @@ ax = sns.violinplot(x='Column', y='Normalized', data=df_std)
 _ = ax.set_xticklabels(df.keys(), rotation=90)
 plt.show()
 
+
+# drop couldn't use variable and check Nan data
+data = scaled.drop('실업률', axis=1)
+data = data.iloc[2:,:] 
+# Nan
+print(f"{data.isna().sum()}")
+print(f"{data.isnull().sum()}")
+plt.figure(figsize=(10,10))
+sns.heatmap(data.isna())
+plt.show()
+
+print(data.head())
+print(data.tail(10))
+
 # norm dist test
+chi_square_value,p_value=calculate_bartlett_sphericity(data)
+print(f"chi_square_value : {chi_square_value}")
+print(f"p_value() :{p_value}")
 
-# data = scaled.drop('실업률', axis=1)
-# data = data.iloc[2:,:]
-
-# chi_square_value,p_value=calculate_bartlett_sphericity(data)
-# print(f"chi_square_value : {chi_square_value}")
-# print(f"p_value() :{p_value}")
+kmo, p_value = calculate_kmo(data)
+print(f"chi_square_value : {kmo}")
+print(f"p_value() :{p_value}")
 
 
 # # init fa
