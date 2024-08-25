@@ -56,6 +56,9 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
         self.window.show_result.clicked.connect(self.ShowResult)
         self.window.clear_faout_btn.clicked.connect(self.clear_out)
 
+        # expoert
+        self.window.result_to_excel_btn.clicked.connect(self.exportFile)
+
         self.window.show()
 
     ### Data load - file path
@@ -132,6 +135,21 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
         self.window.result_out.setOpenExternalLinks(False)
         self.window.result_out.append(str(self.fa_result))
 
+        self.loading = pd.DataFrame(np.round(self.fa_result.loadings_,3), index=self.rawData.columns)
+        self.communal = pd.DataFrame(np.round(self.fa_result.get_communalities(),3), index=self.rawData.columns)
+        self.eigenvalue = pd.DataFrame(np.round(self.fa_result.get_eigenvalues(),3))
+        self.faVariance =pd.DataFrame(np.round(self.fa_result.get_factor_variance(),3))
+        self.uniqueness = pd.DataFrame(np.round(self.fa_result.get_uniquenesses(),3))
+
+    @QtCore.Slot()
+    def exportFile(self):
+        with pd.ExcelWriter('./test_fa_result_export.xlsx') as writer:
+            self.loading.to_excel(writer, sheet_name='Loading', index=True)
+            self.communal.to_excel(writer, sheet_name='Communalities', index=True)
+            self.eigenvalue.to_excel(writer, sheet_name='Eigenvalues', index=True)
+            self.faVariance.to_excel(writer, sheet_name='Factor_variance', index=True)
+            self.uniqueness.to_excel(writer, sheet_name='Uniquenesses', index=True)
+
     @QtCore.Slot()
     def ShowResult(self):
         if (self.fa != None) and (self.fa_result != None):
@@ -139,27 +157,27 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
                 self.window.result_out.append('\n')
                 self.window.result_out.append(f"{'-'*(55-(len(self.window.fa_loading_ckbox.text()))//2)}{self.window.fa_loading_ckbox.text()}{'-'*(55-(len(self.window.fa_loading_ckbox.text()))//2)}")
                 self.window.result_out.append('\n')
-                self.window.result_out.append(str(pd.DataFrame(np.round(self.fa_result.loadings_,3), index=self.rawData.columns)))
+                self.window.result_out.append(str(self.loading ))
             if self.window.fa_comm_ckbox.isChecked():
                 self.window.result_out.append('\n')
                 self.window.result_out.append(f"{'-'*(55-(len(self.window.fa_comm_ckbox.text()))//2)}{self.window.fa_comm_ckbox.text()}{'-'*(55-(len(self.window.fa_comm_ckbox.text()))//2)}")
                 self.window.result_out.append('\n')
-                self.window.result_out.append(str(self.fa_result.get_communalities()))
+                self.window.result_out.append(str(self.communal))
             if self.window.fa_eigenv_ckbox.isChecked():
                 self.window.result_out.append('\n')
                 self.window.result_out.append(f"{'-'*(55-(len(self.window.fa_eigenv_ckbox.text()))//2)}{self.window.fa_eigenv_ckbox.text()}{'-'*(55-(len(self.window.fa_eigenv_ckbox.text()))//2)}")
                 self.window.result_out.append('\n')
-                self.window.result_out.append(str(self.fa_result.get_eigenvalues()))
+                self.window.result_out.append(str(self.eigenvalue))
             if self.window.fa_var_ckbox.isChecked():
                 self.window.result_out.append('\n')
                 self.window.result_out.append(f"{'-'*(55-(len(self.window.fa_var_ckbox.text()))//2)}{self.window.fa_var_ckbox.text()}{'-'*(55-(len(self.window.fa_var_ckbox.text()))//2)}")
                 self.window.result_out.append('\n')
-                self.window.result_out.append(str(self.fa_result.get_factor_variance()))
+                self.window.result_out.append(str(self.faVariance))
             if self.window.fa_unique_ckbox.isChecked():
                 self.window.result_out.append('\n')
                 self.window.result_out.append(f"{'-'*(55-(len(self.window.fa_unique_ckbox.text()))//2)}{self.window.fa_unique_ckbox.text()}{'-'*(55-(len(self.window.fa_unique_ckbox.text()))//2)}")
                 self.window.result_out.append('\n')
-                self.window.result_out.append(str(self.fa_result.get_uniquenesses()))
+                self.window.result_out.append(str(self.uniqueness))
 
         else:
             self.window.result_out.append('You must first perform a factor analysis.')

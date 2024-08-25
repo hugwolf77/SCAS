@@ -894,6 +894,19 @@
         <property name="title">
          <string>Export</string>
         </property>
+        <widget class="QPushButton" name="result_to_excel_btn">
+         <property name="geometry">
+          <rect>
+           <x>440</x>
+           <y>30</y>
+           <width>131</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>result to excel</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </item>

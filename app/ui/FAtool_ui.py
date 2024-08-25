@@ -253,6 +253,9 @@ class Ui_MainWindow(object):
         self.groupBox_2 = QGroupBox(self.DataFrameView)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.groupBox_2.setGeometry(QRect(10, 680, 581, 121))
+        self.result_to_excel_btn = QPushButton(self.groupBox_2)
+        self.result_to_excel_btn.setObjectName(u"result_to_excel_btn")
+        self.result_to_excel_btn.setGeometry(QRect(440, 30, 131, 31))
 
         self.verticalLayout.addWidget(self.DataFrameView)
 
@@ -333,5 +336,6 @@ class Ui_MainWindow(object):
         self.result.setTitle(QCoreApplication.translate("MainWindow", u"  Result View", None))
         self.clear_faout_btn.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Export", None))
+        self.result_to_excel_btn.setText(QCoreApplication.translate("MainWindow", u"result to excel", None))
     # retranslateUi
 
