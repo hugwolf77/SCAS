@@ -10,8 +10,8 @@
 
 import sys
 import os
-# from datetime import datetime
-# from pytz import timezone
+from datetime import datetime
+from pytz import timezone #, utc
 import numpy as np
 np.printoptions(linewidth=np.inf)
 import pandas as pd
@@ -22,7 +22,7 @@ from PySide6.QtCore import QFile, QIODevice
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QTableWidget, QTableWidgetItem)
 from PySide6.QtUiTools import QUiLoader
 # ui_from
-from app.ui.FAtool import Ui_MainWindow
+from app.ui.FAtool_ui import Ui_MainWindow
 
 # factor analysis lib
 from app.utils.FA import EFA_tool
@@ -39,8 +39,9 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
         
     def __init__(self):
         super(seekerEFA, self).__init__()
-        self.window= self.SetupUI()
-        self.window.setWindowTitle('[TimeSeries-Seeker] Exporator-Factor-Analsys')
+        self.window= Ui_MainWindow()
+        self.window.setupUi(self)
+        # self.window.setWindowTitle('[TimeSeries-Seeker] Exporator-Factor-Analsys')
         self.file_navi=QFileDialog
         self.EFA_tool=EFA_tool
 
@@ -58,8 +59,6 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
 
         # expoert
         self.window.result_to_excel_btn.clicked.connect(self.exportFile)
-
-        self.window.show()
 
     ### Data load - file path
     @QtCore.Slot()
@@ -113,7 +112,7 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
         self.index = self.rawData.index
         self.columns = self.rawData.columns 
 
-        print(self.rawData.shape)
+        # print(self.rawData.shape)
 
         FA = EFA_tool(self.rawData, scale=True, drop_Na=False)
         if self.window.rotation_comboBox.currentText().split(sep=' ')[0] == 'None': rotation_set = None 
@@ -143,7 +142,11 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
 
     @QtCore.Slot()
     def exportFile(self):
-        with pd.ExcelWriter('./test_fa_result_export.xlsx') as writer:
+        dt = datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
+        sfName = f'./Result_export_{dt}.xlsx'
+        if os.path.exists(sfName):
+            sfName = sfName + '_re' 
+        with pd.ExcelWriter(sfName) as writer:
             self.loading.to_excel(writer, sheet_name='Loading', index=True)
             self.communal.to_excel(writer, sheet_name='Communalities', index=True)
             self.eigenvalue.to_excel(writer, sheet_name='Eigenvalues', index=True)
@@ -187,20 +190,20 @@ class seekerEFA(QMainWindow, Ui_MainWindow):
     def clear_out(self):
         self.window.result_out.clear()
 
-    #### init
-    def SetupUI(self):
-        ui_file_name = resource_path("app/ui/FAtool.ui")
-        ui_file = QFile(ui_file_name)
-        if not ui_file.open(QIODevice.ReadOnly):
-            print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
-            sys.exit(-1)
-        loader = QUiLoader()
-        window =loader.load(ui_file)
-        ui_file.close()
-        if not window:
-            print(loader.errorString())
-            sys.exit(-1)
-        return window 
+    # #### init
+    # def SetupUI(self):
+    #     ui_file_name = resource_path("app/ui/FAtool.ui")
+    #     ui_file = QFile(ui_file_name)
+    #     if not ui_file.open(QIODevice.ReadOnly):
+    #         print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
+    #         sys.exit(-1)
+    #     loader = QUiLoader()
+    #     window =loader.load(ui_file)
+    #     ui_file.close()
+    #     if not window:
+    #         print(loader.errorString())
+    #         sys.exit(-1)
+    #     return window 
 
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
@@ -210,6 +213,7 @@ def resource_path(relative_path):
 def RunEFA():
     app = QApplication(sys.argv)
     view = seekerEFA()
+    view.show()
     sys.exit(app.exec())
 
 if __name__ == "__main__":
