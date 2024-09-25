@@ -31,3 +31,21 @@ class DW:
     def _cursor(self, conn):
         curr = conn.cursor()
         return curr
+
+
+class Databases():
+    def __init__(self):
+        self.db = pg2.connect(host='localhost', dbname='test',user='postgres',password='password',port=5432)
+        self.cursor = self.db.cursor()
+
+    def __del__(self):
+        self.db.close()
+        self.cursor.close()
+
+    def execute(self,query,args={}):
+        self.cursor.execute(query,args)
+        row = self.cursor.fetchall()
+        return row
+
+    def commit(self):
+        self.cursor.commit()

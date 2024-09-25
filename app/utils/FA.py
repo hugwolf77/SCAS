@@ -4,10 +4,10 @@ from scipy.stats import shapiro, kstest
 from statsmodels.stats.diagnostic import kstest_normal
 from scipy.stats import probplot
 
-# bartlett's, KMO test for equel distribution
+# bartlett's, KMO test for factor analysis
 from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
 
-# foctor analysis
+# foctor analysisj
 from factor_analyzer.factor_analyzer import FactorAnalyzer
 from statsmodels.multivariate.factor import Factor
 
@@ -29,7 +29,7 @@ class EFA_tool:
         else: self.data = self.input_df
 
         # norm dist test
-    def normDist_test(self):
+    def faVal_test(self):
         chi_square_value,p_value=calculate_bartlett_sphericity(self.data)
         print(f"chi_square_value : {chi_square_value}")
         print(f"p_value() :{p_value}")
