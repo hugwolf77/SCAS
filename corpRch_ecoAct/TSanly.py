@@ -12,5 +12,5 @@ def main(df):
 
 
 if __name__ == "__main__":
-    df = '분석_데이터_목록.xlsx'
+    df = '분석_데이터_목록_v2.xlsx'
     main(df)
