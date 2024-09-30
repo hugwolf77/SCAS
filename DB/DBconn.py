@@ -1,51 +1,74 @@
-import sqlite3
-import psycopg2 as pg2
-import config
+import os
+import logging
+from dotenv import load_dotenv
 
+import pandas as pd
+from pandas import DataFrame
+# import sqlite3
+# import psycopg2 as pg2
 
-mDB = ''
-mTable = ''
+from sqlalchemy import URL
+from sqlalchemy import create_engine
+# from sqlalchemy import sql
+from sqlalchemy.orm import Session #, sessionmaker
+# SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
+
+# database table model
+from dataModel.PJ01_TB_model import BASE, CORP_RCH_ECONOMIC
+
+# logging
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s',level=logging.INFO, datefmt='%m/%d/%Y %I:%M:%S %p',) #filename="example.log"
+logging.getLogger("sqlalchemy.engine.Engine.myengine")
+
+# .env
+load_dotenv()
 
 class DW:
-    def __init__(self,mDB_URL, mDB, mTable, mUser, mPW, mPort, engine='sqlite') -> None:
-        self.DB_URL = mDB_URL
-        self.DB = mDB
-        self.Table = mTable
-        self.User = mUser
-        self.PW = mPW
-        self.Port = mPort
-        self.engine = engine
+    def __init__(self) -> None:
 
-        self.conn = self._connect(self.DB)
-        self.curr = self._cursor(self.conn)
+        if os.getenv("DMBS") == 'postgresql+psycopg2':
+            self.url_object = URL.create(
+                                        os.getenv("DMBS"),
+                                        username=os.getenv("User"),
+                                        password=os.getenv("PW"),
+                                        host=os.getenv("DB_URL"),
+                                        database=os.getenv("DB"),
+                                )
+        else:
+            self.url_object = f"sqlite:///{os.getcwd()+'/DB/DataBase/scas.db'}" 
 
-    def _connect(self, mDB):
-        if self.engine == 'sqlite':
-            conn = sqlite3.connect('./DataBase/test.db')
-            return conn
-        elif self.engine == 'postgres':
-            #postgres : config < dotenv
-            pg_conn = pg2.connect(f"host={self.DB_URL} dbname={self.DB} user={self.User} password={self.PW} port={self.Port}")
-            return pg_conn 
-    
-    def _cursor(self, conn):
-        curr = conn.cursor()
-        return curr
+        self.engine =  create_engine(self.url_object, echo=True, logging_name=os.getenv("LOG"))
 
+    def _DB_INIT_TABLE_(self)->None:
+        try:
+            BASE.metadata.create_all(self.engine)
+            print(f"Initialized The DataBase Tables")
+        except:
+            print(f"Failed to initialize The DataBase tables.")
 
-class Databases():
-    def __init__(self):
-        self.db = pg2.connect(host='localhost', dbname='test',user='postgres',password='password',port=5432)
-        self.cursor = self.db.cursor()
+    # 
+    def _TABLE_INSERT_(self,table:str, value:list):
+        with Session(self.engine) as session:
+            Lvalue = [Item for Item in value]
+            session.add_all(Lvalue)
 
-    def __del__(self):
-        self.db.close()
-        self.cursor.close()
+    def _PD_read_(self,table:str)->DataFrame:
+        query = f"SELECT * FROM {table}"
+        df = pd.read_sql(query,con=self.engine)
+        return df
+   
+    def _PD_to_(self,df:DataFrame,table:str,obtion:str='replace')->None:
+        with self.engine.connect() as con:
+            df.to_sql(
+                name=table.upper(),
+                con=con,
+                if_exists=obtion
+            )
 
-    def execute(self,query,args={}):
-        self.cursor.execute(query,args)
-        row = self.cursor.fetchall()
-        return row
-
-    def commit(self):
-        self.cursor.commit()
+if __name__== "__main__":
+    print(f"pwd : {os.getcwd()}")
+    print(f"sqlite:///{os.getcwd()+'/DB/DataBase/scas.db'}"  )
+    df = pd.read_excel('./DB/Data/분석_데이터_목록_v2.xlsx', sheet_name='transData', index_col='date')
+    dw = DW()
+    dw._DB_INIT_TABLE_()
+    dw._PD_to_(df,'CORP_RCH_ECONOMIC')

@@ -19,3 +19,8 @@ since: 2023.08.19
 
 - 2024.08.19
     기본 GUI main-window-form 과 dataloader 작성
+
+- 2024.09.30
+    postgreSQL - DB SCAS 에 01_기업연구소_경제활동인구_경제지표
+
+    initiation : TABLE 생성 - "
